@@ -1,0 +1,82 @@
+﻿<Window
+    x:Class="SpendControl.MainWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="clr-namespace:SpendControl"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    Title="MainWindow"
+    Width="800"
+    Height="450"
+    Closed="Window_Closed"
+    mc:Ignorable="d">
+    <Grid x:Name="___Без_имени_">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="9*" />
+            <RowDefinition Height="1*" />
+        </Grid.RowDefinitions>
+
+        <TabControl Grid.Row="0">
+            <TabItem Header="История">
+                <ListBox Name="OperationListBox" />
+            </TabItem>
+            <TabItem
+                Height="20"
+                VerticalAlignment="Top"
+                Header="Статистика">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition />
+                        <ColumnDefinition />
+                    </Grid.ColumnDefinitions>
+
+                    <WpfPlot
+                        Name="ChartGain"
+                        Grid.Column="0"
+                        Padding="10" />
+                    <WpfPlot
+                        Name="ChartSpend"
+                        Grid.Column="1"
+                        Padding="10" />
+                </Grid>
+            </TabItem>
+        </TabControl>
+
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="3*" />
+                <ColumnDefinition Width="3*" />
+                <ColumnDefinition Width="3*" />
+                <ColumnDefinition Width="1*" />
+            </Grid.ColumnDefinitions>
+
+            <TextBlock
+                Name="GainTextBox"
+                Grid.Column="0"
+                Padding="5,0,0,0"
+                FontSize="15">
+                Доходы
+            </TextBlock>
+            <TextBlock
+                Name="SpendTextBox"
+                Grid.Column="1"
+                Padding="5,0,0,0"
+                FontSize="15">
+                Расходы
+            </TextBlock>
+            <TextBlock
+                Name="BalanceTextBox"
+                Grid.Column="2"
+                Padding="5,0,0,0"
+                FontSize="15">
+                Баланс
+            </TextBlock>
+            <Button
+                Grid.Column="3"
+                Margin="22,5,22,5"
+                Click="AddOperationButton_Click">
+                +
+            </Button>
+        </Grid>
+    </Grid>
+</Window>
