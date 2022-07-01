@@ -19,6 +19,7 @@ namespace SpendControl
 
             _window = window;
             _window.newOperationEvent += new EventHandler(window_newOperationEvent);
+            _window.makeExcelReportEvent += new EventHandler(window_makeExcelReportEvent);
             _window.applicationCloseEvent += new EventHandler(window_applicationCloseEvent);
 
             UpdateViev();
@@ -36,6 +37,11 @@ namespace SpendControl
             _model.Buff = null;
 
             UpdateViev();
+        }
+
+        private void window_makeExcelReportEvent(object sender, EventArgs e)
+        {
+            ExcelReportGenerator.MakeReport(_model.Operations);
         }
 
         private void window_applicationCloseEvent(object sender, EventArgs e)

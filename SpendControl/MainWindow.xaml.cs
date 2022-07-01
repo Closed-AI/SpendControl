@@ -10,6 +10,7 @@ namespace SpendControl
     public partial class MainWindow : Window
     {
         public event EventHandler newOperationEvent = null;
+        public event EventHandler makeExcelReportEvent = null;
         public event EventHandler applicationCloseEvent = null;
 
         public MainWindow()
@@ -64,6 +65,11 @@ namespace SpendControl
         private void AddOperationButton_Click(object sender, RoutedEventArgs e)
         {
             newOperationEvent.Invoke(sender, e);
+        }
+
+        private void MakeExcelReportButton_Click(object sender, RoutedEventArgs e)
+        {
+            makeExcelReportEvent.Invoke(sender, e);
         }
 
         private void Window_Closed(object sender, EventArgs e)
