@@ -111,6 +111,12 @@ namespace SpendControl
                 MessageBox.Show("Укажите дату!");
                 return;
             }
+            else if (date.Value.Date>DateTime.Now.Date)
+            {
+                MessageBox.Show("Дата не может быть больше текущей!\n" +
+                    "(нельзя создавать будущие операции)");
+                return;
+            }
             //---------------------------------------------------------------------
             //category = GetCategory(category);
             _model.Buff = new Operation(price, description, category, type, (DateTime)date);

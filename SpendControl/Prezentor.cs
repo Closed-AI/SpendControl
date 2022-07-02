@@ -9,9 +9,7 @@ namespace SpendControl
     {
         private MainWindow _window;
         private Model _model;
-
-        // Тип для Сериализации и Десериализации.
-        readonly XmlSerializer serializer = new XmlSerializer(typeof(Model));
+        private ViewController _view;
 
         public Prezentor(MainWindow window)
         {
@@ -22,7 +20,9 @@ namespace SpendControl
             _window.makeExcelReportEvent += new EventHandler(window_makeExcelReportEvent);
             _window.applicationCloseEvent += new EventHandler(window_applicationCloseEvent);
 
-            UpdateViev();
+            _view = new ViewController(_model, _window);
+
+            UpdateView();
         }
 
         private void window_newOperationEvent(object sender, EventArgs e)
@@ -36,7 +36,7 @@ namespace SpendControl
             _model.AddOperation(_model.Buff);
             _model.Buff = null;
 
-            UpdateViev();
+            UpdateView();
         }
 
         private void window_makeExcelReportEvent(object sender, EventArgs e)
@@ -51,113 +51,17 @@ namespace SpendControl
 
         private void SaveData()
         {
-            FileStream stream = new FileStream("Serialization.xml", FileMode.Create, FileAccess.Write, FileShare.Read);
-
-            // Сохраняем объект в XML-файле на диске(СЕРИАЛИЗАЦИЯ).
-            serializer.Serialize(stream, _model);
-            stream.Close();
+            SaveSystem.SaveData(_model);
         }
 
         private void LoadData()
         {
-            try
-            {
-                FileStream stream = new FileStream("Serialization.xml", FileMode.Open, FileAccess.Read, FileShare.Read);
-
-                // Восстанавливаем объект из XML-файла.
-                _model = serializer.Deserialize(stream) as Model;
-            }
-            catch (Exception)
-            {
-                _model = new Model();
-                _model.AddStartCategories();
-            }
+            _model = SaveSystem.LoadData();
         }
 
-        private void UpdateViev()
+        private void UpdateView()
         {
-            UpdateHistory();
-            UpdateBalance();
-            UpdateCharts();
-        }
-
-        private void UpdateHistory()
-        {
-            var history = _window.OperationListBox.Items;
-            history.Clear();
-
-            foreach (var item in _model.Operations)
-            {
-                history.Add(item.Category + "\n" + item.Value);
-            }
-        }
-
-        private void UpdateBalance()
-        {
-            float sumGain = 0;
-            float sumSpend = 0;
-
-            foreach (var item in _model.Operations)
-            {
-                if (item.Type == "Доход")
-                    sumGain += item.Value;
-                else
-                    sumSpend += item.Value;
-            }
-
-            _window.GainTextBox.Text = "Доходы\n" + sumGain.ToString();
-            _window.SpendTextBox.Text = "Расходы\n" + sumSpend.ToString();
-            _window.BalanceTextBox.Text = "Баланс\n" + (sumGain - sumSpend).ToString();
-        }
-
-        private void UpdateCharts()
-        {
-            Dictionary<string, float> percentageGain = new Dictionary<string, float>();
-            Dictionary<string, float> percentageSpend = new Dictionary<string, float>();
-
-            foreach (var item in _model.Operations)
-            {
-                if (item.Type == "Доход")
-                {
-                    if (!percentageGain.ContainsKey(item.Category))
-                        percentageGain[item.Category] = item.Value;
-                    else
-                        percentageGain[item.Category] += item.Value;
-                }
-                else
-                {
-                    if (!percentageSpend.ContainsKey(item.Category))
-                        percentageSpend[item.Category] = item.Value;
-                    else
-                        percentageSpend[item.Category] += item.Value;
-                }
-            }
-
-            string[] gainKeys = new string[percentageGain.Count];
-            string[] spendKeys = new string[percentageSpend.Count];
-
-            double[] gainValues = new double[percentageGain.Count];
-            double[] spendValues = new double[percentageSpend.Count];
-
-            int id = 0;
-
-            foreach (var item in percentageGain)
-            {
-                gainKeys[id] = item.Key;
-                gainValues[id] = item.Value;
-                id++;
-            }
-
-            id = 0;
-
-            foreach (var item in percentageSpend)
-            {
-                spendKeys[id] = item.Key;
-                spendValues[id] = item.Value;
-                id++;
-            }
-
-            _window.InitPlots(gainValues, gainKeys, spendValues, spendKeys);
+            _view.UpdateView();
         }
     }
 }

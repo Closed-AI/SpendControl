@@ -76,5 +76,13 @@ namespace SpendControl
         {
             applicationCloseEvent.Invoke(sender, e);
         }
+
+        private void OperationListBox_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            if (OperationListBox.SelectedItem != null)
+            {
+                // TODO: редактирование/удаление элемента
+            }
+        }
     }
 }
