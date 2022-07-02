@@ -15,6 +15,24 @@ namespace SpendControl
 {
     static class ExcelReportGenerator
     {
+        #region RowAndColumnConsts
+        private const int START_ROW = 2;
+        private const int START_COLUMN = 2;
+        private const int END_COLUMN = 5;
+
+        private const int CATEGORY_COLUMN = 2;
+        private const int VALUE_COLUMN = 3;
+        private const int DATE_COLUMN = 4;
+        private const int DESCRIPTION_COLUMN = 5;
+        #endregion
+
+        #region ColorConsts
+        private const string HEADER_COLOR = "#66a3e8";
+        private const string GAIN_OPERATION_COLOR = "#00ff7f";
+        private const string SPEND_OPERATION_COLOR = "#ff5757";
+        #endregion
+
+
         public static void MakeReport(List<Operation> data)
         {
             var package = new ExcelPackage();
@@ -22,40 +40,43 @@ namespace SpendControl
             var sheet = package.Workbook.Worksheets.Add("История операций");
 
             // шапка таблицы
-            sheet.Cells[2, 2, 2, 5].LoadFromArrays(new object[][] { new[] { "Категория", "Сумма", "Дата", "Описание" } });
-            sheet.Cells[2, 2, 2, 5].Style.Fill.PatternType = ExcelFillStyle.Solid;
-            sheet.Cells[2, 2, 2, 5].Style.Fill.BackgroundColor.SetColor(ColorTranslator.FromHtml("#66a3e8"));  // blue color
+            var header = sheet.Cells[START_ROW, START_COLUMN, START_ROW, END_COLUMN];
+
+            header.LoadFromArrays(new object[][] { new[] { "Категория", "Сумма", "Дата", "Описание" } });
+            header.Style.Fill.PatternType = ExcelFillStyle.Solid;
+            header.Style.Fill.BackgroundColor.SetColor(ColorTranslator.FromHtml(HEADER_COLOR));
+            //--------------------------
 
             var row = 3;
 
             foreach (var op in data)
             {
-                sheet.Cells[row, 2].Value = op.Category;
-                sheet.Cells[row, 3].Value = op.Value;
-                sheet.Cells[row, 4].Value = op.OperationDate;
-                sheet.Cells[row, 5].Value = op.Description;
+                sheet.Cells[row, CATEGORY_COLUMN].Value = op.Category;
+                sheet.Cells[row, VALUE_COLUMN].Value = op.Value;
+                sheet.Cells[row, DATE_COLUMN].Value = op.OperationDate;
+                sheet.Cells[row, DESCRIPTION_COLUMN].Value = op.Description;
 
-                sheet.Cells[row, 2, row, 5].Style.Fill.PatternType = ExcelFillStyle.Solid;
+                var dataRow = sheet.Cells[row, START_COLUMN, row, END_COLUMN];
 
-                if (op.Type == "Доход") // green color
-                    sheet.Cells[row, 2, row, 5].Style.Fill.BackgroundColor.SetColor(ColorTranslator.FromHtml("#00ff7f"));
-                else                    // red color
-                    sheet.Cells[row, 2, row, 5].Style.Fill.BackgroundColor.SetColor(ColorTranslator.FromHtml("#ff5757"));
+                var color = op.Type == "Доход" ?
+                    GAIN_OPERATION_COLOR :  // подсветка доходов
+                    SPEND_OPERATION_COLOR;  // подсветка расходов
+
+                dataRow.Style.Fill.PatternType = ExcelFillStyle.Solid;
+                dataRow.Style.Fill.BackgroundColor.SetColor(ColorTranslator.FromHtml(color));
 
                 row++;
             }
             row--;
 
-            //--------------------------//
-            //      форматирование      //
-            //--------------------------//
+            // форматирование
             // автоширина ячеек
-
-            sheet.Cells[2, 2, row, 5].AutoFitColumns();
-
+            sheet.Cells[START_ROW, START_COLUMN, row, END_COLUMN].AutoFitColumns();
             // формат даты
-            sheet.Cells[3, 4, row, 4].Style.Numberformat.Format = "dd.mm.yy";
-            //--------------------------//
+            var DATA_START_ROW = START_ROW - 1;
+
+            sheet.Cells[DATA_START_ROW, DATE_COLUMN, row, DATE_COLUMN].Style.Numberformat.Format = "dd.mm.yy";
+            //--------------------------
 
             MakeFile(package.GetAsByteArray());
         }
@@ -68,7 +89,7 @@ namespace SpendControl
             dialog.Title = "Сохранение отчёта об операциях";
             dialog.DefaultExt = ".xlsx";
             dialog.CheckPathExists = true;
-            //--------------------------//
+            //--------------------------
 
             if (dialog.ShowDialog() == DialogResult.OK)
             {
