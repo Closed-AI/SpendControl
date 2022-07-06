@@ -31,7 +31,7 @@ namespace SpendControl
 
             foreach (var item in _model.Operations)
             {
-                history.Add(item.Category + "\n" + item.Value);
+                history.Insert(0, item.Category + "\n" + item.Value);
             }
         }
 

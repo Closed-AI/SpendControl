@@ -33,6 +33,21 @@ namespace SpendControl
         public void AddOperation(Operation operation)
         {
             _operations.Add(operation);
+
+            int SIZE = _operations.Count - 1;
+            int id;
+
+            for (id = SIZE - 1; id >= 0; id--)
+            {
+                if (_operations[SIZE].OperationDate >= _operations[id].OperationDate)
+                    break;
+            }
+
+            if (id < 0) id = 0;
+
+            var buff = _operations[id];
+            _operations[id] = _operations[SIZE];
+            _operations[SIZE] = buff;
         }
 
         public void AddStartCategories()
